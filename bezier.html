@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<meta charset="utf-8">
+<title>Hello World</title>
+<body>
+	<button class="dragable" id="btn1"></button>
+	<button class="dragable" id="btn2"></button>
+	<button class="dragable ctrl" id="btn3"></button>
+	<button class="dragable ctrl" id="btn4"></button>
+	<canvas id="bzr" style="position: absolute;"></canvas>
+</body>
+</html>
+
+<script type="text/javascript" src="dragable.js"></script>
+<script type="text/javascript">
+	var cvs = document.getElementById("bzr");
+	cvs.width = 800;
+	cvs.height = 600;
+
+	var ctx = cvs.getContext("2d");
+
+	var point = function(opt){
+		var p = {}
+		p.x = opt.x;
+		p.y = opt.y;
+		return p;
+	};
+
+	var strokeBezier = function(context, start_p, end_p, ctr_p_0, ctr_p_1) {
+		context.clearRect(0,0,800,600);
+
+		context.rect(0, 0, 800, 600);
+		context.fillStyle="green";
+		context.fillRect(0, 0, 800, 600);
+		
+		//context.rect(0, 0, 800, 600);
+		context.strokeStyle = "cyan";
+
+		context.beginPath();
+		context.moveTo(ctr_p_0.x, ctr_p_0.y);
+		context.lineTo(start_p.x, start_p.y);
+		context.stroke();
+
+		context.beginPath();
+		context.moveTo(ctr_p_1.x, ctr_p_1.y);
+		context.lineTo(end_p.x, end_p.y);
+		context.stroke();
+
+		context.strokeStyle = "red";
+
+		context.beginPath();
+		context.moveTo(start_p.x, start_p.y);
+		context.bezierCurveTo(ctr_p_0.x, ctr_p_0.y, ctr_p_1.x, ctr_p_1.y, end_p.x, end_p.y);
+		context.stroke();
+	}
+
+	
+
+	var p0 = point({x: 0, y: 300});
+	var p1 = point({x: 800, y: 300});
+	var ctr0 = point({x: 300, y: 100});
+	var ctr1 = point({x: 300, y: 400});
+
+	strokeBezier(ctx, p0, p1, ctr0, ctr1);
+
+	var d1 = dragable({
+		id:'btn1', 
+		width: "15px", 
+		height: "15px", 
+		top: "300px", 
+		left: "3px", 
+		prevent_horizontal: true, 
+		prevent_vertical: false, 
+		will_drag: function(left, top){
+			p0.x = left - 3;
+			p0.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		},
+		did_drag: function(left, top){
+			console.log(left + "," + top)
+			p0.x = left - 3;
+			p0.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		}
+	});
+
+	var d2 = dragable({
+		id:'btn2', 
+		width: "15px", 
+		height: "15px", 
+		top: "300px", 
+		left: "800px", 
+		prevent_horizontal: true, 
+		prevent_vertical: false,
+		will_drag: function(left, top){
+			p1.x = left;
+			p1.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		},
+		did_drag: function(left, top){
+			p1.x = left;
+			p1.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		}
+	});
+
+	var d3 = dragable({
+		id:'btn3', 
+		width: "15px", 
+		height: "15px", 
+		top: "100px", 
+		left: "300px", 
+		prevent_horizontal: false, 
+		prevent_vertical: false,
+		will_drag: function(left, top){
+			ctr0.x = left;
+			ctr0.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		},
+		did_drag: function(left, top){
+			ctr0.x = left;
+			ctr0.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		}
+	});
+
+	var d4 = dragable({
+		id:'btn4', 
+		width: "15px", 
+		height: "15px", 
+		top: "400px", 
+		left: "300px", 
+		prevent_horizontal: false, 
+		prevent_vertical: false,
+		will_drag: function(left, top){
+			ctr1.x = left;
+			ctr1.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		},
+		did_drag: function(left, top){
+			ctr1.x = left;
+			ctr1.y = top - 2;
+			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		}
+	});
+
+</script>
+<style>
+	.dragable {
+		background-color: red;
+		border-radius: 7.5px;
+  		border-style: solid;
+  		border-width: 0.5px;
+  		border-color: gray;
+	}
+
+	.ctrl {
+		background-color: cyan;
+	}
+</style>
