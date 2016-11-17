@@ -1,5 +1,5 @@
-var dragable = (function(){
-	var dragable = function(opt){
+var draggable = (function(){
+	var draggable = function(opt){
 		var d = {};
 		d.id = opt.id;
 		d.width = opt.width;
@@ -11,21 +11,23 @@ var dragable = (function(){
 		d.prevent_vertical = opt.prevent_vertical;
 		d.will_drag = opt.will_drag;
 		d.did_drag = opt.did_drag;
-
-		d.element = function() {
-			return document.getElementById(d.id);
-		};
+		d.element = undefined;
 
 		d.init = function() {
-			var element = d.element();
-			element.style.position = 'absolute';
-			element.style.width = d.width;
-			element.style.height = d.height;
-			element.style.top = d.top;
-			element.style.left = d.left;
-			element.style.zIndex = 1000;
+			var btn = document.createElement('button');
+			btn.setAttribute('class', 'draggable');
+			btn.setAttribute('id', d.id);
+			btn.style.left = d.left + "px";
+			btn.style.top = d.top + "px";
+			btn.style.width = d.width;
+			btn.style.height = d.height;
+			btn.style.zIndex = 1000;
+			btn.style.position = 'absolute';
+
+			d.element = btn;
 			
-			element.onmousedown = function(ev){
+			d.element.onmousedown = function(ev){
+				var element = d.element;
 
 				element.style.cursor="move";
 				var e = window.event || ev;
@@ -45,6 +47,8 @@ var dragable = (function(){
 					var rleft = Number(element.style.left.substring(0, element.style.left.length - 2));
 					var rtop = Number(element.style.top.substring(0, element.style.top.length - 2));
 					console.log(rleft + "," + rtop);
+					d.left = rleft;
+					d.top = rtop;
 					d.will_drag(rleft, rtop);
 			    };
 
@@ -54,6 +58,8 @@ var dragable = (function(){
 			        element.style.cursor="normal";
 					var rleft = Number(element.style.left.substring(0, element.style.left.length - 2));
 					var rtop = Number(element.style.top.substring(0, element.style.top.length - 2));
+					d.left = rleft;
+					d.top = rtop;
 					d.did_drag(rleft, rtop);
 			    }
 			};
@@ -61,14 +67,8 @@ var dragable = (function(){
 			
 		};
 
-		d.place = function() {
-			var e = document.getElementById(d.id);
-			e.style.top = d.top;
-			e.style.left = d.left;
-		};
-
 		d.init();
 		return d;
 	};
-	return dragable;
+	return draggable;
 }());

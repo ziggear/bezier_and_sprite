@@ -1,152 +1,305 @@
 <!doctype html>
 <html>
 <meta charset="utf-8">
-<title>Hello World</title>
+<title>HTML5 Bezier Tool</title>
 <body>
-	<button class="dragable" id="btn1"></button>
-	<button class="dragable" id="btn2"></button>
-	<button class="dragable ctrl" id="btn3"></button>
-	<button class="dragable ctrl" id="btn4"></button>
-	<canvas id="bzr" style="position: absolute;"></canvas>
-</body>
-</html>
+	<div class="container">
+		<h1>HTML Bezier 工具</h1>
+		<div>
+			<form>
+				<input type="radio" name="ctr_type" value="add" checked>添加
+				<input type="radio" name="ctr_type" value="drag">拖拽
+				<button>清空</button>
+			</form>
+		</div>
 
-<script type="text/javascript" src="dragable.js"></script>
-<script type="text/javascript">
-	var cvs = document.getElementById("bzr");
-	cvs.width = 800;
-	cvs.height = 600;
+		<div id="canvas_container">
+			<canvas id="bzr" style="position: absolute;"></canvas>
+		</div>
 
-	var ctx = cvs.getContext("2d");
-
-	var point = function(opt){
-		var p = {}
-		p.x = opt.x;
-		p.y = opt.y;
-		return p;
-	};
-
-	var strokeBezier = function(context, start_p, end_p, ctr_p_0, ctr_p_1) {
-		context.clearRect(0,0,800,600);
-
-		context.rect(0, 0, 800, 600);
-		context.fillStyle="green";
-		context.fillRect(0, 0, 800, 600);
-		
-		//context.rect(0, 0, 800, 600);
-		context.strokeStyle = "cyan";
-
-		context.beginPath();
-		context.moveTo(ctr_p_0.x, ctr_p_0.y);
-		context.lineTo(start_p.x, start_p.y);
-		context.stroke();
-
-		context.beginPath();
-		context.moveTo(ctr_p_1.x, ctr_p_1.y);
-		context.lineTo(end_p.x, end_p.y);
-		context.stroke();
-
-		context.strokeStyle = "red";
-
-		context.beginPath();
-		context.moveTo(start_p.x, start_p.y);
-		context.bezierCurveTo(ctr_p_0.x, ctr_p_0.y, ctr_p_1.x, ctr_p_1.y, end_p.x, end_p.y);
-		context.stroke();
-	}
+		<div>
+			<textarea id="canvas_code"rows="10" style="margin-top: 620px; width: 790px;"></textarea>
+		</div>
+	</div>
 
 	
 
-	var p0 = point({x: 0, y: 300});
-	var p1 = point({x: 800, y: 300});
-	var ctr0 = point({x: 300, y: 100});
-	var ctr1 = point({x: 300, y: 400});
+<!-- 	<button class="draggable" id="btn1"></button>
+	<button class="draggable" id="btn2"></button>
+	<button class="draggable ctrl" id="btn3"></button>
+	<button class="draggable ctrl" id="btn4"></button>
+	<canvas id="bzr" style="position: absolute;"></canvas> -->
+</body>
+</html>
 
-	strokeBezier(ctx, p0, p1, ctr0, ctr1);
+<script type="text/javascript" src="draggable.js"></script>
+<script type="text/javascript" src="bezier.js"></script>
+<script type="text/javascript">
+	var fillBackground = function(context) {
+		context.rect(0, 0, canvasWidth, canvasHeight);
+		context.fillStyle="green";
+		context.fillRect(0, 0, canvasWidth, canvasHeight);
+	};
 
-	var d1 = dragable({
-		id:'btn1', 
-		width: "15px", 
-		height: "15px", 
-		top: "300px", 
-		left: "3px", 
-		prevent_horizontal: true, 
-		prevent_vertical: false, 
-		will_drag: function(left, top){
-			p0.x = left - 3;
-			p0.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
-		},
-		did_drag: function(left, top){
-			console.log(left + "," + top)
-			p0.x = left - 3;
-			p0.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	var generateCode = function(bezier_curve) {
+		var line1 = "function draw(ctx, xoffset, yoffset) {\n";
+		var line2 = "\tctx.beginPath();\n";
+
+		var line_middle = "";
+		for(var i = 0; i < bezier_curve.points.length; i ++) {
+			if(i == 0) {
+				var pt = bezier_curve.points[i]
+				line_middle += "\tctx.moveTo(" + pt.draggable.left + " + xoffset," + pt.draggable.top + " + yoffset);\n";
+			} else {
+				var pt_prev = bezier_curve.points[i - 1];
+				var pt = bezier_curve.points[i];
+				var ctr_prev = bezier_curve.ctr_points[(i*2)-2];
+				var ctr = bezier_curve.ctr_points[(i*2)-1];
+
+				line_middle += "\tctx.bezierCurveTo(" + ctr_prev.draggable.left + " + xoffset, " + ctr_prev.draggable.top + " + yoffset, " + ctr.draggable.left + " + xoffset, " + ctr.draggable.top + " + yoffset, " + pt.draggable.left + " + xoffset, " + pt.draggable.top + " + yoffset);\n";
+			}
 		}
+
+		var line3 = "\tctx.stroke()\n";
+		var line4 = "}";
+
+		var codeArea = document.getElementById('canvas_code');
+		var codes = line1 + line2 + line_middle + line3 + line4;
+		codeArea.value = codes;
+	}
+
+	var strokeBezier = function(context, bezier_curve) {
+		console.log("stroke");
+
+		var xoffset = 320;
+		var yoffset = 117;
+
+		context.clearRect(0,0, canvasWidth,canvasHeight);
+		fillBackground(context);
+
+	
+		for(var i = 0; i < bezier_curve.points.length; i ++) {
+			if (i == 0) {
+				var pt = bezier_curve.points[i];
+				context.moveTo(pt.draggable.left - xoffset, pt.draggable.top - yoffset);
+			} else {
+				var pr_prev = bezier_curve.points[i - 1];
+				var pt = bezier_curve.points[i];
+				var ctr_prev = bezier_curve.ctr_points[(i*2)-2];
+				var ctr = bezier_curve.ctr_points[(i*2)-1];
+
+				context.beginPath();
+				context.strokeStyle = "cyan";
+				context.moveTo(ctr_prev.draggable.left - xoffset, ctr_prev.draggable.top - yoffset);
+				context.lineTo(pr_prev.draggable.left - xoffset, pr_prev.draggable.top - yoffset);
+				context.stroke();
+
+				context.beginPath();
+				context.strokeStyle = "cyan";
+				context.moveTo(ctr.draggable.left - xoffset, ctr.draggable.top - yoffset);
+				context.lineTo(pt.draggable.left - xoffset, pt.draggable.top - yoffset);
+				context.stroke();
+
+				context.beginPath();
+				context.strokeStyle = "red";
+				context.moveTo(pr_prev.draggable.left - xoffset, pr_prev.draggable.top - yoffset);
+				context.bezierCurveTo(
+					ctr_prev.draggable.left - xoffset, 
+					ctr_prev.draggable.top - yoffset, 
+					ctr.draggable.left - xoffset, 
+					ctr.draggable.top - yoffset, 
+					pt.draggable.left - xoffset, 
+					pt.draggable.top - yoffset);
+				context.stroke();
+			}
+		}
+
+		generateCode(b);
+		
+	}
+
+	var canvasWidth = 800;
+	var canvasHeight = 600;
+
+	var b = bezier.curve([], []);
+
+	var canvas = document.getElementById("bzr");
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+
+	canvas.addEventListener("click", function(event){
+		addPoint(event.clientX, event.clientY);
 	});
 
-	var d2 = dragable({
-		id:'btn2', 
-		width: "15px", 
-		height: "15px", 
-		top: "300px", 
-		left: "800px", 
-		prevent_horizontal: true, 
-		prevent_vertical: false,
-		will_drag: function(left, top){
-			p1.x = left;
-			p1.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
-		},
-		did_drag: function(left, top){
-			p1.x = left;
-			p1.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
-		}
-	});
+	var ctx = canvas.getContext("2d");
 
-	var d3 = dragable({
-		id:'btn3', 
-		width: "15px", 
-		height: "15px", 
-		top: "100px", 
-		left: "300px", 
-		prevent_horizontal: false, 
-		prevent_vertical: false,
-		will_drag: function(left, top){
-			ctr0.x = left;
-			ctr0.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
-		},
-		did_drag: function(left, top){
-			ctr0.x = left;
-			ctr0.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
-		}
-	});
+	var createPoint = function(x, y, btnid, ctrl) {
+		var btn_draggable = draggable({
+				id: btnid, 
+				width: "15px", 
+				height: "15px", 
+				top: y, 
+				left: x, 
+				prevent_horizontal: false, 
+				prevent_vertical: false, 
+				will_drag: function(left, top){
+					console.log("drag");
+					strokeBezier(ctx, b);
+				},
+				did_drag: function(left, top){
+					strokeBezier(ctx, b);
+				}
+			});
 
-	var d4 = dragable({
-		id:'btn4', 
-		width: "15px", 
-		height: "15px", 
-		top: "400px", 
-		left: "300px", 
-		prevent_horizontal: false, 
-		prevent_vertical: false,
-		will_drag: function(left, top){
-			ctr1.x = left;
-			ctr1.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
-		},
-		did_drag: function(left, top){
-			ctr1.x = left;
-			ctr1.y = top - 2;
-			strokeBezier(ctx, p0, p1, ctr0, ctr1);
+		if(ctrl) {
+			btn_draggable.element.setAttribute('class', 'draggable ctrl');
+		} else {
+			btn_draggable.element.setAttribute('class', 'draggable');
 		}
-	});
+
+		var canvasContainer = document.getElementById("canvas_container");
+		canvasContainer.append(btn_draggable.element);
+
+		return btn_draggable;
+	}
+
+	var addPoint = function(x, y){
+		//创建第N+1个点
+		var btn_id = "btn" + b.points.length;
+		var point = createPoint(x, y, btn_id, false);
+		var bezier_point = bezier.point(x, y, point, false);
+		b.points.push(bezier_point);
+
+		if(b.points.length > 1) {
+			//获得起始点和终点
+			var start = b.points[b.points.length - 2];
+			var end = b.points[b.points.length - 1];
+
+			//创建两个控制点
+			var btn_id_0 = "ctr" + b.ctr_points.length;
+			var point_0 = createPoint(start.x + 10, start.y - 30, btn_id, true);
+			var bezier_point_0 = bezier.point(start.x + 10, start.y - 30, point_0, true);
+			b.ctr_points.push(bezier_point_0);
+
+			var btn_id_1 = "ctr" + b.ctr_points.length;
+			var point_1 = createPoint(end.x - 10, end.y - 30, btn_id, true);
+			var bezier_point_1 = bezier.point(end.x - 10, end.y - 30, point_1, true);
+			b.ctr_points.push(bezier_point_1);
+		}
+
+		// 刷新
+		strokeBezier(ctx, b);
+	};
+
+
+	
+
+
+	
+
+	// var p0 = point({x: 0, y: 300});
+	// var p1 = point({x: 800, y: 300});
+	// var ctr0 = point({x: 300, y: 100});
+	// var ctr1 = point({x: 300, y: 400});
+
+	// strokeBezier(ctx, p0, p1, ctr0, ctr1);
+
+	// var d1 = draggable({
+	// 	id:'btn1', 
+	// 	width: "15px", 
+	// 	height: "15px", 
+	// 	top: "300px", 
+	// 	left: "3px", 
+	// 	prevent_horizontal: true, 
+	// 	prevent_vertical: false, 
+	// 	will_drag: function(left, top){
+	// 		p0.x = left - 3;
+	// 		p0.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	},
+	// 	did_drag: function(left, top){
+	// 		console.log(left + "," + top)
+	// 		p0.x = left - 3;
+	// 		p0.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	}
+	// });
+
+	// var d2 = draggable({
+	// 	id:'btn2', 
+	// 	width: "15px", 
+	// 	height: "15px", 
+	// 	top: "300px", 
+	// 	left: "800px", 
+	// 	prevent_horizontal: true, 
+	// 	prevent_vertical: false,
+	// 	will_drag: function(left, top){
+	// 		p1.x = left;
+	// 		p1.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	},
+	// 	did_drag: function(left, top){
+	// 		p1.x = left;
+	// 		p1.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	}
+	// });
+
+	// var d3 = draggable({
+	// 	id:'btn3', 
+	// 	width: "15px", 
+	// 	height: "15px", 
+	// 	top: "100px", 
+	// 	left: "300px", 
+	// 	prevent_horizontal: false, 
+	// 	prevent_vertical: false,
+	// 	will_drag: function(left, top){
+	// 		ctr0.x = left;
+	// 		ctr0.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	},
+	// 	did_drag: function(left, top){
+	// 		ctr0.x = left;
+	// 		ctr0.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	}
+	// });
+
+	// var d4 = draggable({
+	// 	id:'btn4', 
+	// 	width: "15px", 
+	// 	height: "15px", 
+	// 	top: "400px", 
+	// 	left: "300px", 
+	// 	prevent_horizontal: false, 
+	// 	prevent_vertical: false,
+	// 	will_drag: function(left, top){
+	// 		ctr1.x = left;
+	// 		ctr1.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	},
+	// 	did_drag: function(left, top){
+	// 		ctr1.x = left;
+	// 		ctr1.y = top - 2;
+	// 		strokeBezier(ctx, p0, p1, ctr0, ctr1);
+	// 	}
+	// });
+	fillBackground(ctx);
 
 </script>
 <style>
-	.dragable {
+	.container {
+		margin-left: auto;
+		margin-right: auto;
+		max-width: 800px;
+	}
+
+	#canvas_container {
+		margin-top: 10px;
+	}
+
+	.draggable {
+		position:absolute;
 		background-color: red;
 		border-radius: 7.5px;
   		border-style: solid;

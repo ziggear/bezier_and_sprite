@@ -1,0 +1,20 @@
+<html>
+	<canvas id="cvs"></canvas>
+</html>
+<script type="text/javascript">
+	var canvas = document.getElementById("cvs");
+	canvas.width = 800;
+	canvas.height = 600;
+
+	var context = canvas.getContext("2d");
+
+	function draw(ctx, xoffset, yoffset) {
+		ctx.beginPath();
+		ctx.moveTo(456 + xoffset, 365 + yoffset);
+		ctx.bezierCurveTo(421 + xoffset, 193 + yoffset, 989 + xoffset, 248 + yoffset, 949 + xoffset, 401 + yoffset);
+		ctx.stroke()
+	}
+
+	draw(context, 0, 0);
+
+</script>
