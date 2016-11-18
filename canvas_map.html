@@ -1,0 +1,189 @@
+<html>
+	<canvas id="game"></canvas>
+</html>
+<script type="text/javascript">
+	var map = function(opt) {
+		var map_proto = {};
+		map_proto.img = opt.img;
+		map_proto.width = opt.width;
+		map_proto.height = opt.height;
+		map_proto.locations = [];
+		return map_proto;
+	};
+
+	var world = function(opt) {
+		var world_proto = {};
+		world_proto.context = opt.context;
+		world_proto.width = opt.width;
+		world_proto.height = opt.height;
+		world_proto.location = {x: opt.width / 2, y: opt.height / 2};
+		world_proto.map = opt.map;
+		world_proto.main_sprite = opt.main_sprite;
+
+		world_proto.render = function() {
+			world_proto.context.clearRect(0, 0, world_proto.width, world_proto.height);
+
+			// render map
+			var location = world_proto.location;
+			world_proto.context.drawImage(
+				world_proto.map.img,
+				location.x - world_proto.width / 2,
+				location.y - world_proto.height / 2,
+				world_proto.width,
+				world_proto.height,
+				0,
+				0,
+				world_proto.width,
+				world_proto.height
+			);
+
+			// render main sprite if exist
+			var ms = world_proto.main_sprite;
+			if(ms) {
+				var ms_frame = ms.next();
+				world_proto.context.drawImage(
+					ms.img,
+					ms_frame.x,
+					ms_frame.y,
+					ms_frame.w,
+					ms_frame.h,
+					(world_proto.width - ms_frame.w) / 2,
+					(world_proto.height - ms_frame.h) / 2,
+					ms_frame.w,
+					ms_frame.h
+				);
+			}
+			
+		};
+		return world_proto;
+	};
+
+	var sprite = function(opt) {
+		var sprite_proto = {};
+		sprite_proto.img = opt.img;
+		sprite_proto.actions = opt.actions;
+		sprite_proto.frames = opt.frames;
+		sprite_proto.frame_duration = opt.frame_duration;
+		sprite_proto.prev_frame_time = 0;
+
+		sprite_proto.perform = function(act) {
+			// set current action
+			// frame index set to 0
+			sprite_proto.current_action = act;
+			sprite_proto.current_frame_idx = 0;
+		};
+
+		sprite_proto.next = function() {
+			var now = Math.round(new Date().getTime());
+			if(now - sprite_proto.prev_frame_time > sprite_proto.frame_duration) {
+				// save now time 
+				sprite_proto.prev_frame_time = now;
+
+				// do the next
+				sprite_proto.current_frame_idx += 1;
+				if(sprite_proto.current_frame_idx == sprite_proto.frames[sprite_proto.current_action]) {
+					sprite_proto.current_frame_idx = 0;
+				}
+			}
+
+			return sprite_proto.get_frame();
+		};
+
+		sprite_proto.get_frame = function() {
+			var cur_frms = sprite_proto.frames[sprite_proto.current_action];
+			return cur_frms[sprite_proto.current_frame_idx];
+		};
+
+		return sprite_proto;
+	};
+
+	var canvas_inst = document.getElementById("game");
+	canvas_inst.width = 384;
+	canvas_inst.height = 245;
+
+	var image = new Image();
+	image.src = "world_map.png";
+
+	var animalImage = new Image();
+	animalImage.src = "animals.png";
+
+	var map_inst = map({
+		img: image,
+		width: 1200,
+		height: 600
+	});
+
+	var sprite_inst = sprite({
+		img: animalImage,
+		frame_duration: 200,
+		actions: ['left', 'right', 'up', 'down'],
+		frames: {
+			'left': [
+				{x: 8, y:397, w: 34, h: 36},
+				{x: 60, y:397, w: 34, h: 36},
+				{x: 112, y:397, w: 34, h: 36}
+			],
+			'right': [
+				{x: 8, y:469, w: 34, h: 36},
+				{x: 60, y:469, w: 34, h: 36},
+				{x: 112, y:469, w: 34, h: 36}
+			],
+			'up': [
+				{x: 8, y:540, w: 34, h: 36},
+				{x: 60, y:540, w: 34, h: 36},
+				{x: 112, y:540, w: 34, h: 36}
+			],
+			'down': [
+				{x: 8, y:325, w: 34, h: 36},
+				{x: 60, y:325, w: 34, h: 36},
+				{x: 112, y:325, w: 34, h: 36}
+			]
+		}
+	});
+
+	var world_inst = world({
+		context: canvas_inst.getContext("2d"),
+		width: canvas_inst.width,
+		height: canvas_inst.height,
+		map: map_inst,
+		main_sprite: sprite_inst
+	});
+
+	function gameLoop() {
+		//window.requestAnimationFrame(gameLoop);
+		world_inst.render();
+	}
+
+	image.addEventListener("load", function(){
+		// start game loop
+		gameLoop();
+	});
+
+
+
+	document.addEventListener("keydown", function(e){
+		var move_step = 4;
+		var code = e.keyCode;
+		console.log(code);
+		if(code == 38) {
+			world_inst.location.x = world_inst.location.x;
+			world_inst.location.y = world_inst.location.y - move_step;
+			world_inst.main_sprite.perform('up');
+		} else if (code == 40) {
+			world_inst.location.x = world_inst.location.x;
+			world_inst.location.y = world_inst.location.y + move_step;
+			world_inst.main_sprite.perform('down');
+		} else if (code == 37) {
+			world_inst.location.x = world_inst.location.x - move_step;
+			world_inst.location.y = world_inst.location.y;
+			world_inst.main_sprite.perform('left');
+		} else if (code == 39) {
+			world_inst.location.x = world_inst.location.x + move_step;
+			world_inst.location.y = world_inst.location.y;
+			world_inst.main_sprite.perform('right');
+		}
+
+		gameLoop();
+	});
+
+</script>

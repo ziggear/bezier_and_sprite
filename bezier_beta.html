@@ -1,0 +1,40 @@
+<html>
+	<canvas id="draw"></canvas>
+</html>
+<script type="text/javascript">
+	var canvas = document.getElementById("draw");
+	canvas.width = 800;
+	canvas.height = 600;
+
+	var context = canvas.getContext("2d");
+	context.rect(0, 0, 800, 600);
+	context.fillStyle = "green";
+	context.fill();
+
+	var p0 = {x: 300, y:300};
+	var p1 = {x: 400, y:200};
+	var p2 = {x: 500, y:300};
+
+	function drawPoint(ctx, pt) {
+		ctx.fillStyle="gray";
+		ctx.beginPath();
+		ctx.arc(pt.x,pt.y,3,0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.fill();
+	}
+
+	function drawLine(ctx, pt0, pt1) {
+		ctx.strokeStyle="gray";
+		ctx.beginPath();
+		ctx.moveTo(pt0.x, pt0.y);
+		ctx.lineTo(pt1.x, pt1.y);
+		ctx.closePath();
+		ctx.stroke();
+	}
+
+	drawPoint(context, p0);
+	drawLine(context, p0, p1);
+	drawPoint(context, p1);
+	drawLine(context, p1, p2);
+	drawPoint(context, p2);
+</script>
