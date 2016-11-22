@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>World Editor</title>
+</head>
+<body>
+	<div class="center top">
+		<h1>World Editor</h1>
+		rows<input id="map_rows" type="" name="">
+		cols<input id="map_cols" type="" name="">
+		<button id="change_size">确定</button>
+	</div>
+	<div class="left">
+		<div class="tiles" id="tiles_select">
+			<img src="../../images/world_map.png">
+			<div id="selection"></div>
+		</div>
+	</div>
+	<div class="right">
+		<canvas id="world"></canvas>
+	</div>
+	<div class="clearfix"></div>
+	<div class="center foot">4</div>
+</body>
+
+<script type="text/javascript">
+	var tiles_select = document.getElementById('tiles_select');
+	tiles_select.addEventListener('click', function(e){
+		console.log(e);
+		var sel = document.getElementById('selection');
+
+		var pos_x = parseInt(e.clientX / 50) * 50;
+		var pos_y = parseInt(e.clientY / 50) * 50;
+
+		if(pos_y <= 50) {
+			pos_y = 100;
+		}
+
+		if(pos_x >= 350) {
+			pos_x = 300;
+		}
+
+		sel.style.left = pos_x + 8 + "px";
+		sel.style.top = pos_y - 12 + "px";
+	});
+
+	window.onload = function() {
+		var rows = document.getElementById("map_rows");
+		var cols = document.getElementById("map_cols");
+		rows.value = 10;
+		cols.value = 10;
+	};
+
+
+	var changeBtn = document.getElementById('change_size');
+	changeBtn.addEventListener('click', function(e){
+		var rows = document.getElementById("map_rows").value;
+		var cols = document.getElementById("map_cols").value;
+		var canvas = document.getElementById("world");
+		canvas.width = parseInt(cols) * 50;
+		canvas.height = parseInt(rows) * 50;
+
+		var ctx = canvas.getContext('2d');
+		ctx.rect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "red";
+		ctx.fill();
+	});
+</script>
+
+<style type="text/css">
+	.center {
+		margin-left: auto;
+		margin-right: auto;
+		background-color: gray;
+	}
+
+	.left {
+		float: left;
+		max-width: 350px;
+		min-width: 350px;
+		background-color: green;
+		overflow: hidden;
+		border-style: solid;
+		border-width: 2px;
+
+	}
+
+	.right {
+		float: right;
+		min-width: 647px;
+		background-color: gray;
+	}
+
+	.clearfix {
+		clear:both;height:0;overflow:hidden;
+	}
+
+	#selection {
+		width: 50px;
+		height: 50px;
+		position: absolute;
+		display: block;
+		z-index: 1000;
+		border-style: solid;
+		border-color: white;
+		border-radius: 2px;
+	}
+</style>
+</html>

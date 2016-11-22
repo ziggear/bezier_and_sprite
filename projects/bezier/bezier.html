@@ -5,12 +5,13 @@
 <body>
 	<div class="container">
 		<h1>HTML Bezier 工具</h1>
+		<h3>点击绿色区域添加点，拖拽点可以修改曲线形状</h3>
 		<div>
-			<form>
+<!-- 			<form>
 				<input type="radio" name="ctr_type" value="add" checked>添加
 				<input type="radio" name="ctr_type" value="drag">拖拽
 				<button>清空</button>
-			</form>
+			</form> -->
 		</div>
 
 		<div id="canvas_container">
@@ -32,8 +33,8 @@
 </body>
 </html>
 
-<script type="text/javascript" src="draggable.js"></script>
-<script type="text/javascript" src="bezier.js"></script>
+<script type="text/javascript" src="../../js/draggable.js"></script>
+<script type="text/javascript" src="../../js/bezier.js"></script>
 <script type="text/javascript">
 	var fillBackground = function(context) {
 		context.rect(0, 0, canvasWidth, canvasHeight);

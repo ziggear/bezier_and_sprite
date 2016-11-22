@@ -1,72 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<meta charset="utf-8">
-<title>Hello World</title>
+<head>
+	<title>Canvas 学习</title>
+</head>
 <body>
-	<canvas id="butterflyAnimation"></canvas>
+
+	<h1>HTML5 Canvas 学习</h1>
+
+	<ul>
+		<li><a href="projects/butterfly/index.html">sprite动画，一个会飞的蝴蝶</a></li>
+		<li><a href="projects/bezier/bezier.html">bezier曲线绘制，可拖拽</a></li>
+		<li><a href="projects/canvas_map/canvas_map.html">一个可滚动的地图，以及地图上的sprite动画</a></li>
+		<li><a href="projects/box_and_wall/box_and_ball.html">运动的小球，碰撞检测，播放音效</a></li>
+	</ul>
+
 </body>
 </html>
-
-<script type="text/javascript" src="sprite.js"></script>
-<script type="text/javascript">
-	var butterflyImg = new Image();
-	butterflyImg.src = "butterfly-recolors.png";
-	
-	var canvas = document.getElementById("butterflyAnimation");
-	canvas.width = 17;
-	canvas.height = 17;
-
-	var sp = sprite({
-		position: {x: 0, y: 0},
-		move_speed: 2,
-		context: canvas.getContext("2d"),
-		image:butterflyImg,
-		width: 17,
-		height: 17,
-		frames: [
-			{x: 199, y: 96, w: 17, h: 17},
-			{x: 231, y: 96, w: 17, h: 17},
-			{x: 263, y: 96, w: 17, h: 17}
-		],
-		duration: 50,
-		loops: true,
-		name: "butterfly"
-	});
-
-	butterflyImg.addEventListener("load", sp.animate);
-	// document.addEventListener("keydown", function(e){
-	// 	e.preventDefault();
-	// 	var key = e.keyCode;
-	// 	if(key == 40) {
-	// 		sp.move(0, sp.move_speed);
-	// 	} else if (key == 38) {
-	// 		sp.move(0, - sp.move_speed);
-	// 	} else if (key == 37) {
-	// 		sp.move(- sp.move_speed, 0);
-	// 	} else if (key == 39) {
-	// 		sp.move(sp.move_speed, 0);
-	// 	}
-	// 	console.log("down");
-	// });
-</script>
-
-<style type="text/css">
-	@keyframes straightLine {
-	  10% { transform: translate3D(10px, 20px, 0) rotate(160deg); }
-	  20% { transform: translate3D(20px, 28px, 0) rotate(135deg);}
-	  30% { transform: translate3D(30px, 32px, 0) rotate(120deg);}
-	  40% { transform: translate3D(40px, 30px, 0) rotate(90deg);}
-	  50% { transform: translate3D(50px, 25px, 0) rotate(70deg);}
-	  60% { transform: translate3D(60px, 17px, 0) rotate(65deg);}
-	  70% { transform: translate3D(70px, 5px, 0) rotate(45deg);}
-	  75% { transform: translate3D(75px, 3px, 0) rotate(30deg);}
-	  80% { transform: translate3D(80px, 5px, 0) rotate(90deg);}
-	  90% { transform: translate3D(90px, 9px, 0) rotate(120deg);}
-	  100% { transform: translate3D(100px, 20px, 0) rotate(160deg);}
-	}
-
-	#butterflyAnimation:hover {
-		animation:mymove 5s infinite linear;
-        -webkit-animation:straightLine 5s infinite linear; /* Safari 和 Chrome */
-	}
-</style>

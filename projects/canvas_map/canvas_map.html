@@ -1,5 +1,6 @@
 <html>
-	<canvas id="game"></canvas>
+	<h3>使用方向键（上下左右）看效果</h3>
+	<canvas id="game" style="margin-left: 10; margin-top: 10;"></canvas>
 </html>
 <script type="text/javascript">
 	var map = function(opt) {
@@ -22,6 +23,11 @@
 
 		world_proto.render = function() {
 			world_proto.context.clearRect(0, 0, world_proto.width, world_proto.height);
+
+			//fill grey
+			world_proto.context.rect(0, 0, world_proto.width, world_proto.height);
+			world_proto.context.fillStyle = "grey";
+			world_proto.context.fill();
 
 			// render map
 			var location = world_proto.location;
@@ -67,6 +73,9 @@
 		sprite_proto.prev_frame_time = 0;
 
 		sprite_proto.perform = function(act) {
+			if(sprite_proto.current_action == act) {
+				return;
+			}
 			// set current action
 			// frame index set to 0
 			sprite_proto.current_action = act;
@@ -81,7 +90,7 @@
 
 				// do the next
 				sprite_proto.current_frame_idx += 1;
-				if(sprite_proto.current_frame_idx == sprite_proto.frames[sprite_proto.current_action]) {
+				if(sprite_proto.current_frame_idx == sprite_proto.frames[sprite_proto.current_action].length) {
 					sprite_proto.current_frame_idx = 0;
 				}
 			}
@@ -102,10 +111,10 @@
 	canvas_inst.height = 245;
 
 	var image = new Image();
-	image.src = "world_map.png";
+	image.src = "../../images/world_map.png";
 
 	var animalImage = new Image();
-	animalImage.src = "animals.png";
+	animalImage.src = "../../images/animals.png";
 
 	var map_inst = map({
 		img: image,
@@ -115,7 +124,7 @@
 
 	var sprite_inst = sprite({
 		img: animalImage,
-		frame_duration: 200,
+		frame_duration: 80,
 		actions: ['left', 'right', 'up', 'down'],
 		frames: {
 			'left': [
@@ -150,7 +159,7 @@
 	});
 
 	function gameLoop() {
-		//window.requestAnimationFrame(gameLoop);
+		window.requestAnimationFrame(gameLoop);
 		world_inst.render();
 	}
 
@@ -183,7 +192,7 @@
 			world_inst.main_sprite.perform('right');
 		}
 
-		gameLoop();
+		//gameLoop();
 	});
 
 </script>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<meta charset="utf-8">
+<title>Hello World</title>
+<body>
+	<h1>鼠标移到蝴蝶上就飞了</h1>
+	<canvas id="butterflyAnimation"></canvas>
+</body>
+</html>
+
+<script type="text/javascript" src="../../js/sprite.js"></script>
+<script type="text/javascript">
+	var butterflyImg = new Image();
+	butterflyImg.src = "../../images/butterfly-recolors.png";
+	
+	var canvas = document.getElementById("butterflyAnimation");
+	canvas.width = 17;
+	canvas.height = 17;
+
+	var sp = sprite({
+		position: {x: 0, y: 0},
+		move_speed: 2,
+		context: canvas.getContext("2d"),
+		image:butterflyImg,
+		width: 17,
+		height: 17,
+		frames: [
+			{x: 199, y: 96, w: 17, h: 17},
+			{x: 231, y: 96, w: 17, h: 17},
+			{x: 263, y: 96, w: 17, h: 17}
+		],
+		duration: 50,
+		loops: true,
+		name: "butterfly"
+	});
+
+	butterflyImg.addEventListener("load", sp.animate);
+
+	// 或者不根据css，而是通过键盘来操作
+	// document.addEventListener("keydown", function(e){
+	// 	e.preventDefault();
+	// 	var key = e.keyCode;
+	// 	if(key == 40) {
+	// 		sp.move(0, sp.move_speed);
+	// 	} else if (key == 38) {
+	// 		sp.move(0, - sp.move_speed);
+	// 	} else if (key == 37) {
+	// 		sp.move(- sp.move_speed, 0);
+	// 	} else if (key == 39) {
+	// 		sp.move(sp.move_speed, 0);
+	// 	}
+	// 	console.log("down");
+	// });
+</script>
+
+<style type="text/css">
+	@keyframes straightLine {
+	  10% { transform: translate3D(10px, 20px, 0) rotate(160deg); }
+	  20% { transform: translate3D(20px, 28px, 0) rotate(135deg);}
+	  30% { transform: translate3D(30px, 32px, 0) rotate(120deg);}
+	  40% { transform: translate3D(40px, 30px, 0) rotate(90deg);}
+	  50% { transform: translate3D(50px, 25px, 0) rotate(70deg);}
+	  60% { transform: translate3D(60px, 17px, 0) rotate(65deg);}
+	  70% { transform: translate3D(70px, 5px, 0) rotate(45deg);}
+	  75% { transform: translate3D(75px, 3px, 0) rotate(30deg);}
+	  80% { transform: translate3D(80px, 5px, 0) rotate(90deg);}
+	  90% { transform: translate3D(90px, 9px, 0) rotate(120deg);}
+	  100% { transform: translate3D(100px, 20px, 0) rotate(160deg);}
+	}
+
+	#butterflyAnimation:hover {
+		animation:mymove 5s infinite linear;
+        -webkit-animation:straightLine 5s infinite linear; /* Safari 和 Chrome */
+	}
+</style>

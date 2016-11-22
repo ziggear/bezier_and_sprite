@@ -1,0 +1,155 @@
+<html>
+	<canvas id="box"></canvas>
+</html>
+
+<script type="text/javascript">
+	var box = function(box_opt) {
+		var box_proto = {};
+		box_proto.canvas_id = box_opt.canvas_id;
+		box_proto.width = box_opt.width;
+		box_proto.height = box_opt.height;
+		box_proto.bg_color = box_opt.bg_color;
+		box_proto.balls = box_opt.balls;
+
+		box_proto.init = function() {
+			var canvas = document.getElementById(this.canvas_id);
+			canvas.width = this.width;
+			canvas.height = this.height;
+		};
+
+		box_proto.render_bg = function() {
+			var canvas = document.getElementById(this.canvas_id);
+			var ctx = canvas.getContext("2d");
+			ctx.rect(0, 0, this.width, this.height);
+			ctx.fillStyle = this.bg_color;
+			ctx.fill();
+		};
+
+		box_proto.render_ball = function(ball) {
+			var canvas = document.getElementById(this.canvas_id);
+			var ctx = canvas.getContext("2d");
+			ctx.fillStyle = ball.color;
+			ctx.strokeStyle = "black";
+			ctx.beginPath();
+			ctx.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
+			ctx.fill();
+			ctx.stroke();
+		};
+
+		box_proto.play_vfx = function(name) {
+			var audio = new Audio(name);
+			audio.play();
+		};
+
+		box_proto.init();
+		return box_proto;
+	}
+
+	var ball = function(ball_opt) {
+		var ball_proto = {};
+		ball_proto.x = ball_opt.x;
+		ball_proto.y = ball_opt.y;
+		ball_proto.r = ball_opt.r;
+		ball_proto.xv = ball_opt.xv;
+		ball_proto.yv = ball_opt.yv;
+		ball_proto.color = ball_opt.color;
+		return ball_proto;
+	}
+
+	var b1 = ({x:50, y:50, r: 50, xv: 5, yv: 10, color: "blue"});
+	var b2 = ({x:135, y:135, r: 35, xv: -15, yv: -18, color: "red"});
+
+	var box_inst = box({
+		canvas_id: "box",
+		width: 800,
+		height: 600,
+		bg_color: "gray"
+	});
+
+	function wall_collision(ball, box) {
+		var move_x = ball.x + ball.xv;
+		var move_y = ball.y + ball.yv;
+		if(move_x + ball.r >= box.width) {
+			// right wall
+			ball.xv = - ball.xv;
+			ball.yv = ball.yv;
+			//play_voice("wall.wav");
+			return true;
+		} else if (move_y + ball.r >= box.height) {
+			// bottom wall
+			ball.xv = ball.xv;
+			ball.yv = - ball.yv;
+			//play_voice("wall.wav");
+			return true;
+		} else if (move_x - ball.r <= 0) {
+			// left wall
+			ball.xv = - ball.xv;
+			ball.yv = ball.yv;
+			//play_voice("wall.wav");
+			return true;
+		} else if (move_y - ball.r <= 0) {
+			// top wall
+			ball.xv = ball.xv;
+			ball.yv = - ball.yv;
+			//play_voice("wall.wav");
+			return true;
+		}
+		return false;
+	}
+
+	function ball_collision(ball1, ball2) {
+		var move_x_1 = ball1.x + ball1.xv;
+		var move_y_1 = ball1.y + ball1.yv;
+
+		var move_x_2 = ball2.x + ball2.xv;
+		var move_y_2 = ball2.y + ball2.yv;
+
+		var dist = Math.sqrt( Math.pow((move_x_2 - move_x_1), 2) + Math.pow((move_y_2 - move_y_1), 2) );
+		if(dist <= ball1.r + ball2.r) {
+			var tmp_xv = ball1.xv;
+			ball1.xv = ball2.xv;
+			ball2.xv = tmp_xv;
+
+			var tmp_yv = ball1.yv;
+			ball1.yv = ball2.yv;
+			ball2.yv = tmp_yv;
+			play_voice("ball.wav");
+			return true;
+		}
+		return false;
+	}
+
+	function next_frame() {
+		var isCol1 = wall_collision(b1, box_inst);
+		var isCol2 = wall_collision(b2, box_inst);
+
+		var ballCol = ball_collision(b1, b2);
+
+		if(!isCol1 && !ballCol) {
+			b1.x += b1.xv;
+			b1.y += b1.yv;
+		}
+
+		if(!isCol2 && !ballCol) {
+			b2.x += b2.xv;
+			b2.y += b2.yv;
+		}
+
+		box_inst.render_bg();
+		box_inst.render_ball(b1);
+		box_inst.render_ball(b2);
+	}
+
+	function play_voice(name) {
+		var audio = new Audio(name);
+		audio.play();
+	}
+
+	function gameLoop() {
+		window.requestAnimationFrame(gameLoop);
+		next_frame();
+	}
+
+	window.onload = gameLoop;
+
+</script>
