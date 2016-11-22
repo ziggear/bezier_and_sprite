@@ -3,6 +3,8 @@
 </html>
 
 <script type="text/javascript">
+	var audio = new Audio("ball.wav");
+
 	var box = function(box_opt) {
 		var box_proto = {};
 		box_proto.canvas_id = box_opt.canvas_id;
@@ -141,7 +143,6 @@
 	}
 
 	function play_voice(name) {
-		var audio = new Audio(name);
 		audio.play();
 	}
 
